@@ -429,7 +429,7 @@ let s:tlist_def_lua_settings = 'lua;f:function'
 let s:tlist_def_make_settings = 'make;m:macro'
 
 " matlab language
-let s:tlist_def_matlab_settings = 'matlab;f:function'
+let s:tlist_def_matlab_settings = 'matlab;e:function'
 
 " pascal language
 let s:tlist_def_pascal_settings = 'pascal;f:function;p:procedure'
