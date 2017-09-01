@@ -429,7 +429,7 @@ let s:tlist_def_lua_settings = 'lua;f:function'
 let s:tlist_def_make_settings = 'make;m:macro'
 
 " matlab language
-let s:tlist_def_matlab_settings = 'matlab;e:function'
+let s:tlist_def_matlab_settings = 'matlab;f:function;c:class'
 
 " pascal language
 let s:tlist_def_pascal_settings = 'pascal;f:function;p:procedure'
@@ -859,15 +859,19 @@ function! s:Tlist_FileType_Init(ftype)
     let var = 'g:tlist_' . a:ftype . '_settings'
     if exists(var)
         " User specified ctags arguments
+        call s:Tlist_Log_Msg(var.'exists')
         let settings = {var} . ';'
     else
         " Default ctags arguments
+        call s:Tlist_Log_Msg(var.' not exists')
         let var = 's:tlist_def_' . a:ftype . '_settings'
         if !exists(var)
+            call s:Tlist_Log_Msg(var.' not exists')
             " No default settings for this file type. This filetype is
             " not supported
             return 0
         endif
+        call s:Tlist_Log_Msg({var})
         let settings = s:tlist_def_{a:ftype}_settings . ';'
     endif
 
@@ -2211,6 +2215,8 @@ function! s:Tlist_Process_File(filename, ftype)
                 \ a:ftype . ')')
     " Check whether this file is supported
     if s:Tlist_Skip_File(a:filename, a:ftype)
+        call s:Tlist_Log_Msg('Tlist_Skip_File (' . a:filename . ', ' .
+                    \ a:ftype . ')')
         return -1
     endif
 
@@ -3274,10 +3280,14 @@ function! s:Tlist_Window_Open_File(win_ctrl, filename, tagpat)
 
         " Bring the line to the middle of the window
         normal! z.
+        normal! zM
 
         " If the line is inside a fold, open the fold
         if foldclosed('.') != -1
-            .foldopen
+            normal! zv
+            normal! zc
+            normal! zO
+            ".foldopen
         endif
     endif
 
@@ -3323,6 +3333,7 @@ function! s:Tlist_Window_Jump_To_Tag(win_ctrl)
     " If inside a closed fold, then use the first line of the fold
     " and jump to the file.
     let lnum = foldclosed('.')
+    call s:Tlist_Log_Msg('lnum:'.lnum)
     if lnum == -1
         " Jump to the selected tag or file
         let lnum = line('.')
